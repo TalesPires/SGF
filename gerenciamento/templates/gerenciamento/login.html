@@ -40,11 +40,11 @@
                         <label for="nome_usuario">Usuário</label>
                         <input type="text" class="form-control" id="nome_usuario" name="nome_usuario" placeholder="Administrador">
                     </div>
-                    <div class="form-group">
+                    <div class="form-group mb-1">
                         <label for="password">Senha</label>
                         <input type="password" class="form-control" id="password" name="password" placeholder="••••••••">
                     </div>
-                        <a href="#" style="color: #6a708a;">Esqueci minha senha</a>
+                        <a href="{% url 'gerenciamento:password_reset' %}" style="color: #6a708a;">Esqueci minha senha</a>
                     <div class="text-center mt-4">
                         <button type="submit" class="btn btn-success btn-pequeno">Entrar</button>
                     </div>

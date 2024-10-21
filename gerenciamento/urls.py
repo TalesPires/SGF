@@ -2,6 +2,8 @@
 
 from django.urls import path
 from . import views
+from gerenciamento.views import ResetPasswordView
+from django.contrib.auth import views as auth_views
 
 app_name = 'gerenciamento'
 
@@ -30,4 +32,13 @@ urlpatterns = [
     path('login/', views.login_view, name='login'),
     
     path('logout/', views.logout_view, name='logout'),
+    
+    path('password-reset/', ResetPasswordView.as_view(), name='password_reset'),
+    
+    path('password-reset-confirm/<str:email>/', views.custom_password_reset_confirm,
+        name='redefinir_senha'),
+    
+    path('password-reset-complete/',
+    auth_views.PasswordResetCompleteView.as_view(template_name='gerenciamento/password_reset_complete.html'),
+    name='password_reset_complete'),
 ]

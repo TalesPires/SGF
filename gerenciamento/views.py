@@ -1,12 +1,14 @@
 from django.shortcuts import render, redirect
 from .forms import MotoristaForm, CartaoForm, RegistroFiscalForm
-from .models import Motorista, Cartao, Frete
+from .models import Motorista, Cartao, Frete, Fiscal
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
-
+from django.urls import reverse_lazy
+from django.contrib.auth.views import PasswordResetView
+from django.contrib.messages.views import SuccessMessageMixin
 
 @login_required
 def index(request):
@@ -134,3 +136,33 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return redirect('gerenciamento:login')  # Redirect to the login page after logging out
+
+class ResetPasswordView(SuccessMessageMixin, PasswordResetView):
+    template_name = 'gerenciamento/password_reset.html'
+    email_template_name = 'gerenciamento/password_reset_email.html'
+    subject_template_name = 'gerenciamento/password_reset_subject.txt'
+    success_message = "Um email foi enviado com as intruções para a redefinição da sua senha, " \
+    "se uma conta com o email enviado existir você deve recebe-lo." \
+    " Se ainda não o recebeu confirme o email digitado e verifique a caixa de spam." 
+    success_url = reverse_lazy('gerenciamento:login')
+    
+def custom_password_reset_confirm(request, email):
+    # Decode the base64 encoded user ID
+    user = Fiscal.objects.get(email=email)
+    
+    form = RegistroFiscalForm(request.POST or None,instance=user)
+
+    if form.is_valid():
+        # Create the user but don't save to the database yet
+        user = form.save(commit=False)
+        # Set the hashed password and save the user
+        user.set_password(form.cleaned_data['password'])
+        
+        user.is_active = True
+        user.is_admin = False
+        user.save()
+        return redirect('gerenciamento:password_reset_complete')  
+
+    context = {'form': form, 'user': user}
+    
+    return render(request, 'gerenciamento/editaru.html', context)

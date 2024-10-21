@@ -12,7 +12,7 @@
 </head>
 <body>
 
-    <div class="btn-group ms-4 mt-4">
+    <div class="btn-group ms-4 mt-4 shadow">
         <button class="btn btn-secondary btn-lg" type="button" data-bs-toggle="dropdown" aria-expanded="false">
             Motorista
         </button>
@@ -28,7 +28,7 @@
         </ul>
     </div>
 
-    <div class="btn-group ms-2 mt-4">
+    <div class="btn-group ms-2 mt-4 shadow">
         <button class="btn btn-secondary btn-lg" type="button" data-bs-toggle="dropdown" aria-expanded="false">
             Cartão
         </button>
@@ -43,7 +43,7 @@
         </ul>
     </div>
     
-    <div class="btn-group ms-2 mt-4">
+    <div class="btn-group ms-2 mt-4 shadow">
         <button class="btn btn-secondary btn-lg" type="button" data-bs-toggle="dropdown" aria-expanded="false">
             Veículo
         </button>
@@ -58,7 +58,7 @@
         </ul>
     </div>
 
-    <div class="btn-group ms-2 mt-4" >
+    <div class="btn-group ms-2 mt-4 shadow">
         <button class="btn btn-secondary btn-lg" type="button" data-bs-toggle="dropdown" aria-expanded="false">
             Tipo de Veículo
         </button>
@@ -73,7 +73,7 @@
         </ul>
     </div>
 
-    <div class="btn-group ms-2 mt-4">
+    <div class="btn-group ms-2 mt-4 shadow">
         <button class="btn btn-secondary btn-lg" type="button" data-bs-toggle="dropdown" aria-expanded="false">
             Frete
         </button>
@@ -88,7 +88,7 @@
         </ul>
     </div>
 
-    <div class="btn-group ms-2 mt-4">
+    <div class="btn-group ms-2 mt-4 shadow">
         <button class="btn btn-secondary btn-lg" type="button" data-bs-toggle="dropdown" aria-expanded="false">
             Pagamento
         </button>
@@ -103,7 +103,7 @@
         </ul>
     </div>
 
-    <div class="btn-group ms-2 mt-4">
+    <div class="btn-group ms-2 mt-4 shadow">
         <button class="btn btn-secondary btn-lg" type="button" data-bs-toggle="dropdown" aria-expanded="false">
             Usuários
         </button>
@@ -129,11 +129,11 @@
             <nav class="navbar">
                 <div class="container">    
                     <ul class="nav-item dropup mt-4">
-                        <a class="btn btn-secondary dropdown-toggle btn-pequeno" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> 
+                        <a class="btn btn-secondary dropdown-toggle btn-pequeno shadow" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> 
                         {{user.nome_usuario}}
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#">Redefinir Senha</a></li>
+                            <li><a class="dropdown-item" href="{% url 'gerenciamento:password_reset' %}">Redefinir Senha</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="{% url 'gerenciamento:logout' %}">Sair</a></li>
                         </ul>
