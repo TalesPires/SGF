@@ -1,14 +1,16 @@
 from django.db import models
 
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
+from django.utils.translation import gettext_lazy as _
+
 
 class Motorista(models.Model):
-    cpf_motorista = models.CharField(db_column='cpf_motorista',max_length=11,primary_key=True, null=False)
-    registro_cnh = models.CharField(db_column='registro_cnh',max_length=11)
-    nome = models.CharField(db_column='nome',max_length=50)
-    telefone = models.CharField(db_column='telefone',max_length=11)
-    endereco = models.CharField(db_column='endereco',max_length=50)
-    data_admissao = models.DateField(db_column='data_admissao')
+    cpf_motorista = models.CharField(db_column='cpf_motorista',max_length=11,primary_key=True)
+    registro_cnh = models.CharField(max_length=11)
+    nome = models.CharField(max_length=50)
+    telefone = models.CharField(max_length=11)
+    endereco = models.CharField(max_length=50)
+    data_admissao = models.DateField()
 
     class Meta:
         managed = False
@@ -18,35 +20,17 @@ class Motorista(models.Model):
         return self.cpf_motorista
 
 class Cartao(models.Model):
-    codigo_cartao = models.CharField(db_column='codigo_cartao',max_length=10,primary_key=True, null=False)
-    agencia = models.CharField(db_column='agencia',max_length=5)
-    numero_conta = models.CharField(db_column='numero_conta',max_length=6)
-    validade = models.DateField(db_column='validade')
-    cpf_motorista = models.ForeignKey(Motorista,db_column='cpf_motorista', null=True,on_delete=models.SET_NULL,blank=True)
-
+    agencia = models.CharField(max_length=5)
+    cpf_motorista = models.ForeignKey(Motorista,db_column="cpf_motorista",on_delete=models.SET_DEFAULT,default="0")
+    numero_conta = models.CharField(max_length=6,primary_key=True)
+    validade = models.DateField()
+    
     class Meta:
         managed = False
         db_table = 'cartao'
 
     def __str__(self):
-        return self.codigo_cartao
-    
-class Frete(models.Model):
-    id_frete = models.IntegerField(db_column='id_frete',primary_key=True, null=False, unique=True)
-    data_chegada = models.DateTimeField(db_column='data_chegada')
-    data_saida = models.DateTimeField(db_column='data_saida')
-    distancia_rodagem = models.SmallIntegerField(db_column='distancia_rodagem')
-    valor_frete = models.DecimalField(db_column='valor_frete', max_digits=10, decimal_places=2)
-    cpf_motorista = models.ForeignKey(Motorista,db_column='cpf_motorista',max_length=11, null=True,on_delete=models.SET_NULL,blank=True)  
-    renavam = models.CharField(db_column='renavam',max_length=11) 
-
-
-    class Meta:
-        managed = False
-        db_table = 'frete'
-
-    def __str__(self):
-        return self.id_frete
+        return self.numero_conta
 
 class MinhaGestaoUsuarios(BaseUserManager):
     def criar_usuario(self, nome_usuario, email, cpf_fiscal, password=None):
@@ -82,11 +66,10 @@ class MinhaGestaoUsuarios(BaseUserManager):
         user.save(using=self._db)
         return user
 
-# Custom model linked to 'fiscal' table
 class Fiscal(AbstractBaseUser):
-    cpf_fiscal = models.CharField(db_column='cpf_fiscal', primary_key=True, unique=True, max_length=11)
-    nome_usuario = models.CharField(db_column='nome_usuario', max_length=50, unique=True)
-    email = models.EmailField(db_column='email', max_length=55)
+    cpf_fiscal = models.CharField(primary_key=True, max_length=11)
+    nome_usuario = models.CharField(max_length=50, unique=True)
+    email = models.EmailField(max_length=55)
     is_active = models.BooleanField(db_column='ativo',default=True)     
     is_admin = models.BooleanField(db_column='staff',default=False) 
 
@@ -111,3 +94,136 @@ class Fiscal(AbstractBaseUser):
     @property
     def is_staff(self):
         return self.is_admin
+    
+class Tipo(models.Model):
+    id_tipo = models.AutoField(primary_key=True)
+    nome_tipo = models.CharField(max_length=20)
+    capacidade_peso = models.DecimalField(decimal_places=2,max_digits=9)
+    quantidade_eixos = models.PositiveSmallIntegerField()
+
+    class Meta:
+        managed = False
+        db_table = 'tipo'
+
+    def __str__(self):
+        return self.id_tipo
+    
+class Veiculo(models.Model):
+    renavam = models.CharField(max_length=11,primary_key=True)
+    id_tipo = models.ForeignKey(Tipo,on_delete=models.SET_DEFAULT,default="000",null=False,blank=False)
+    placa = models.CharField(max_length=20)
+    marca = models.CharField(max_length=20)
+    modelo = models.CharField(max_length=20)
+    cor = models.CharField(max_length=20)
+    ano = models.DateField()
+    
+
+    class Meta:
+        managed = False
+        db_table = 'veiculo'
+
+    def __str__(self):
+        return self.renavam
+    
+class Frete(models.Model):
+    id_frete = models.AutoField(primary_key=True)
+    cpf_motorista = models.ForeignKey(Motorista,max_length=11, null=False,
+    on_delete=models.SET_DEFAULT,blank=False,default="00000000000")  
+    renavam = models.ForeignKey(Veiculo,max_length=11, null=False,
+    on_delete=models.SET_DEFAULT,blank=False,default="00000000000")
+    data_chegada = models.DateTimeField()
+    data_saida = models.DateTimeField()
+    distancia_rodagem = models.SmallIntegerField()
+    valor_frete = models.DecimalField(max_digits=10, decimal_places=2)
+    
+
+
+    class Meta:
+        managed = False
+        db_table = 'frete'
+
+    def __str__(self):
+        return self.id_frete
+    
+class Pagamento(models.Model):
+    cpf_fiscal = models.ForeignKey(Fiscal,max_length=11,on_delete=models.SET_DEFAULT,default="000", null=False,blank=False)
+    id_frete = models.ForeignKey(Frete,on_delete=models.SET_DEFAULT,default="000",null=False,blank=False)
+    taxa_desconto = models.DecimalField(max_digits=8,decimal_places=2)
+    taxa_acrescimo = models.DecimalField(max_digits=8,decimal_places=2)
+    valor_calculado = models.DecimalField(max_digits=12,decimal_places=2)
+    data_pagamento = models.DateTimeField()
+    
+    class escolhas_status_pagamento(models.TextChoices):
+        PENDENTE = "PE",_("PENDENTE")
+        EM_TRANSFERENCIA = "TR",_("EM_TRANSFERENCIA")
+        PAGO = "PA",_("PAGO")
+
+    status_pagamento = models.CharField(
+        max_length=2,
+        choices=escolhas_status_pagamento.choices,
+        default=escolhas_status_pagamento.PENDENTE,
+    )
+    
+    class Meta:
+        managed = False
+        db_table = 'pagamento'
+
+    def __str__(self):
+        return self.id_frete, self.cpf_fiscal
+    
+class Acessa(models.Model):
+    cpf_fiscal = models.ForeignKey(Fiscal,max_length=11,on_delete=models.SET_DEFAULT,default="000", null=False,blank=False)
+    id_tipo = models.ForeignKey(Tipo,on_delete=models.SET_DEFAULT,default="000",null=False,blank=False)
+    data_alteracao = models.DateTimeField(primary_key=True)
+    valor_km = models.DecimalField(max_digits=9,decimal_places=2)
+    valor_tonelada = models.DecimalField(max_digits=9,decimal_places=2)
+    valor_entrega = models.DecimalField(max_digits=12,decimal_places=2)
+    
+    class Meta:
+        managed = False
+        db_table = 'acessa'
+
+    def __str__(self):
+        return self.id_tipo, self.cpf_fiscal, self.data_alteracao
+    
+class Carga(models.Model):
+    codigo_carga = models.AutoField(primary_key=True)
+    id_frete = models.ForeignKey(Frete, null=True,on_delete=models.SET_NULL,blank=True)
+    peso = models.DecimalField(max_digits=9, decimal_places=2)
+    valor_carga = models.DecimalField(max_digits=12, decimal_places=2)
+    
+
+    class Meta:
+        managed = False
+        db_table = 'carga'
+
+    def __str__(self):
+        return self.codigo_carga
+    
+class Entrega(models.Model):
+    id_entrega = models.AutoField(primary_key=True)
+    codigo_carga = models.ForeignKey(Carga, null=True,on_delete=models.SET_NULL,blank=True)
+    peso_entrega = models.DecimalField(max_digits=9, decimal_places=2)
+    valor_entrega = models.DecimalField(max_digits=12, decimal_places=2)
+    cidade = models.CharField(max_length=30)
+    dificuldade = models.BooleanField()
+    cliente = models.CharField(max_length=30)
+
+    class Meta:
+        managed = False
+        db_table = 'entrega'
+
+    def __str__(self):
+        return self.id_entrega
+
+class EntregaDistribuidora(models.Model):
+    id_entrega = models.ForeignKey(Entrega,on_delete=models.SET_NULL,null=True,blank=True)
+    distribuidora = models.CharField(max_length=30,primary_key=True)
+
+    class Meta:
+        managed = False
+        db_table = 'entrega_distribuidora'
+        unique_together = (('id_entrega', 'distribuidora'))
+
+    def __str__(self):
+        return self.id_entrega, self.distribuidora

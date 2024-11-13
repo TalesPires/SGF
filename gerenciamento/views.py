@@ -13,12 +13,12 @@ from django.contrib.messages.views import SuccessMessageMixin
 @login_required
 def index(request):
     """A pagina inicial dos fiscais"""
-    return render(request, 'gerenciamento/index.html')
+    return render(request, 'gerenciamento/base/index.html')
 
 @staff_member_required
 def indexadmin(request):
     """A pagina inicial do administrador"""
-    return render(request, 'gerenciamento/indexadmin.html')
+    return render(request, 'gerenciamento/base/indexadmin.html')
 
 @login_required
 def cadastrarm(request):
@@ -31,11 +31,11 @@ def cadastrarm(request):
             return redirect('gerenciamento:sucesso')  
     
     context = {'form': form}
-    return render(request, 'gerenciamento/cadastrarm.html', context)
+    return render(request, 'gerenciamento/motorista/cadastrarm.html', context)
 
 @login_required
 def sucesso(request):
-    return render(request, 'gerenciamento/sucesso.html')
+    return render(request, 'gerenciamento/base/sucesso.html')
 
 @login_required
 def pesquisarm(request):
@@ -44,7 +44,7 @@ def pesquisarm(request):
     context = {
         'motoristas': motoristas
     }
-    return render(request, 'gerenciamento/pesquisarm.html', context)
+    return render(request, 'gerenciamento/motorista/pesquisarm.html', context)
 
 @login_required
 def editarm(request):
@@ -53,7 +53,7 @@ def editarm(request):
     context = {
         'motoristas': motoristas
     }
-    return render(request, 'gerenciamento/editarm.html', context)
+    return render(request, 'gerenciamento/motorista/editarm.html', context)
 
 @login_required
 def formeditarm(request, cpf_motorista):
@@ -66,7 +66,7 @@ def formeditarm(request, cpf_motorista):
         return redirect('gerenciamento:sucesso')  
     
     context = {'form': form, 'motoristas': motoristas}
-    return render(request, 'gerenciamento/formeditarm.html', context)
+    return render(request, 'gerenciamento/motorista/formeditarm.html', context)
 
 @login_required
 def excluirm(request):
@@ -75,7 +75,7 @@ def excluirm(request):
     context = {
         'motoristas': motoristas
     }
-    return render(request, 'gerenciamento/excluirm.html', context)
+    return render(request, 'gerenciamento/motorista/excluirm.html', context)
 
 @login_required
 def formexcluirm(request,cpf_motorista):
@@ -88,7 +88,7 @@ def formexcluirm(request,cpf_motorista):
 
     motoristas.delete()
     
-    return render(request,'gerenciamento/sucesso.html')
+    return render(request,'gerenciamento/base/sucesso.html')
     
 @staff_member_required
 def cadastraru(request):
@@ -108,7 +108,7 @@ def cadastraru(request):
             user.save()
             return redirect('gerenciamento:indexadmin')
 
-    return render(request, 'gerenciamento/cadastraru.html', {'form': form})
+    return render(request, 'gerenciamento/usuario/cadastraru.html', {'form': form})
 
 def login_view(request):
     if request.method == 'POST':
@@ -131,16 +131,16 @@ def login_view(request):
         else:
             messages.error(request, "Nome de usuario ou senha inválidos, Tente novamente.")  # Update message to reflect changes
 
-    return render(request, 'gerenciamento/login.html')
+    return render(request, 'gerenciamento/login/login.html')
 
 def logout_view(request):
     logout(request)
     return redirect('gerenciamento:login')  # Redirect to the login page after logging out
 
 class ResetPasswordView(SuccessMessageMixin, PasswordResetView):
-    template_name = 'gerenciamento/password_reset.html'
-    email_template_name = 'gerenciamento/password_reset_email.html'
-    subject_template_name = 'gerenciamento/password_reset_subject.txt'
+    template_name = 'gerenciamento/login/password_reset.html'
+    email_template_name = 'gerenciamento/login/password_reset_email.html'
+    subject_template_name = 'gerenciamento/login/password_reset_subject.txt'
     success_message = "Um email foi enviado com as intruções para a redefinição da sua senha, " \
     "se uma conta com o email enviado existir você deve recebe-lo." \
     " Se ainda não o recebeu confirme o email digitado e verifique a caixa de spam." 
@@ -165,4 +165,70 @@ def custom_password_reset_confirm(request, email):
 
     context = {'form': form, 'user': user}
     
-    return render(request, 'gerenciamento/editarsenha.html', context)
+    return render(request, 'gerenciamento/login/editarsenha.html', context)
+
+@login_required
+def cadastrarc(request):
+    if request.method != 'POST':
+        form = CartaoForm()
+        form.fields['cpf_motorista'].queryset = Motorista.objects.all()
+        form.fields['cpf_motorista'].label_from_instance = lambda obj: f"{obj.cpf_motorista} - {obj.nome}"
+    else:
+        form = CartaoForm(data=request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('gerenciamento:sucesso')  
+    
+    context = {'form': form}
+
+    return render(request, 'gerenciamento/cartao/cadastrarc.html', context)
+
+@login_required
+def pesquisarc(request):
+    cartoes = Cartao.objects.select_related('cpf_motorista').all().order_by('cpf_motorista')
+    
+    context = {
+        'cartoes': cartoes
+    }
+    return render(request, 'gerenciamento/cartao/pesquisarc.html', context)
+
+@login_required
+def editarc(request):
+    cartoes = Cartao.objects.select_related('cpf_motorista').all().order_by('cpf_motorista')
+    
+    context = {
+        'cartoes': cartoes
+    }
+    return render(request, 'gerenciamento/cartao/editarc.html', context)
+
+@login_required
+def formeditarc(request, numero_conta):
+    cartoes = Cartao.objects.get(numero_conta=numero_conta)
+    
+    form = CartaoForm(request.POST or None,instance=cartoes)
+    form.fields['cpf_motorista'].queryset = Motorista.objects.all()
+    form.fields['cpf_motorista'].label_from_instance = lambda obj: f"{obj.cpf_motorista} - {obj.nome}"
+    
+    if form.is_valid():
+        form.save()
+        return redirect('gerenciamento:sucesso')  
+    
+    context = {'form': form, 'cartoes': cartoes}
+    return render(request, 'gerenciamento/cartao/formeditarc.html', context)
+
+@login_required
+def excluirc(request):
+    cartoes = Cartao.objects.select_related('cpf_motorista').all().order_by('cpf_motorista')
+    
+    context = {
+        'cartoes': cartoes
+    }
+    return render(request, 'gerenciamento/cartao/excluirc.html', context)
+
+@login_required
+def formexcluirc(request,numero_conta):
+    cartao = Cartao.objects.get(numero_conta=numero_conta)
+    
+    cartao.delete()
+    
+    return render(request,'gerenciamento/base/sucesso.html')

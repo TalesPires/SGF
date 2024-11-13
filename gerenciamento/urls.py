@@ -37,6 +37,18 @@ urlpatterns = [
     # Pagina de redefinição da senha do usuario
     path('password-reset-confirm/<str:email>/', views.custom_password_reset_confirm, name='redefinir_senha'),
     # Pagina de sucesso da redefinação da senha
-    path('password-reset-complete/', auth_views.PasswordResetCompleteView.as_view(template_name='gerenciamento/password_reset_complete.html'),
+    path('password-reset-complete/', auth_views.PasswordResetCompleteView.as_view(template_name='gerenciamento/login/password_reset_complete.html'),
     name='password_reset_complete'),
+    # Pagina de cadastro dos cartões
+    path('cadastrarc/', views.cadastrarc, name='cadastrarc'),
+    # Pagina de pesquisa dos cartões
+    path('pesquisarc/', views.pesquisarc, name='pesquisarc'),
+    # Pagina de edição dos cartões
+    path('editarc/', views.editarc, name='editarc'),
+    # Pagina inserção dos dados da edição dos cartões
+    path('formeditarc/<str:numero_conta>/', views.formeditarc, name='formeditarc'),
+    # Pagina de exclusão dos cartões
+    path('excluirc/', views.excluirc, name='excluirc'),
+    # Pagina de exclusão dos cartões
+    path('excluirc/<str:numero_conta>/', views.formexcluirc, name='formexcluirc'),
 ]

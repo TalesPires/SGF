@@ -1,7 +1,7 @@
 from django import forms
-from .models import Motorista, Cartao, Fiscal
+from .models import Motorista, Cartao, Fiscal, Tipo, Veiculo
 from django.core.exceptions import ValidationError
-from validate_docbr import CPF, CNH
+from validate_docbr import CPF, CNH, RENAVAM
 
 class MotoristaForm(forms.ModelForm):
     class Meta:
@@ -40,7 +40,7 @@ class MotoristaForm(forms.ModelForm):
 class CartaoForm(forms.ModelForm):
     class Meta:
         model = Cartao
-        fields = ['codigo_cartao','cpf_motorista','agencia', 'numero_conta', 'validade']
+        fields = ['cpf_motorista','agencia', 'numero_conta', 'validade']
         widgets = {
             'validade': forms.DateInput(attrs={'type': 'date'}, format='%Y-%m-%d'),
         }
@@ -70,3 +70,32 @@ class RegistroFiscalForm(forms.ModelForm):
         if password != password_confirm:
             raise forms.ValidationError("As senhas não correspondem")
         return cleaned_data
+    
+class TipoForm(forms.ModelForm):
+    class Meta:
+        model = Tipo
+        fields = ['id_tipo','nome_tipo', 'capacidade_peso', 'quantidade_eixos']
+    
+    def clean_capacidade_peso(self):
+        capacidade_peso = self.cleaned_data.get(capacidade_peso)
+        quantidade_eixos = self.cleaned_data.get(quantidade_eixos)
+        
+        if capacidade_peso < 0:
+            raise ValidationError('Capacidade de peso deve ser maior que zero')
+        
+        if quantidade_eixos < 0:
+            raise ValidationError('Quantidade de eixos deve ser maior que zero')
+
+class VeiculoForm(forms.ModelForm):
+    class Meta:
+        model = Veiculo
+        fields = ['renavam','id_tipo', 'placa', 'marca','modelo', 'cor', 'ano']
+        
+    def clean_renavam(self):
+        renavam = self.cleaned_data.get('renavam')
+        validator = RENAVAM()
+
+        if not validator.validate(renavam):
+            raise ValidationError("Renavam inválido.")
+        
+        return renavam
