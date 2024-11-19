@@ -5,12 +5,12 @@
 {% bootstrap_css %}
 {% bootstrap_javascript %}
 
-<title>Edição do Usuario</title>
+<title>Edição da Senha</title>
 
 <div class="container">
     <div class="card mt-4">
         <div class="card-header text-white text-center">
-            <h2>EDITAR USUARIO</h2>
+            <h2>EDITAR SENHA</h2>
         </div>
         <div class="card-body">
             <form method="POST" action="{% url 'gerenciamento:redefinir_senha' user.email %}" novalidate>

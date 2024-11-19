@@ -7,12 +7,12 @@
 {% bootstrap_css %}
 {% bootstrap_javascript %}
 
-<title>Pesquisa do Cartão</title>
+<title>Pesquisa do Usuario</title>
 
 <div class="container atributos">
     <div class="card mt-4 shadow-lg">
         <div class="card-header text-white text-center">
-            <h2 class="text-center">PESQUISAR CARTÃO</h2>
+            <h2 class="text-center">PESQUISAR USUARIO</h2>
         </div>
         <div class="card-body">
 
@@ -24,23 +24,23 @@
             
             <div class="scrollable-menu" id="scrollable-menu" data-bs-spy="scroll" data-bs-target="#employeeAccordion" data-bs-offset="0" tabindex="0">
                 <div class="accordion accordion-flush" id="employeeAccordion">
-                    {% for cartao in cartoes %}
-                    <div class="accordion-item AccordionContainer" id="cartao-{{ forloop.counter }}">
+                    {% for usuario in usuarios %}
+                    <div class="accordion-item AccordionContainer" id="usuario-{{ forloop.counter }}">
                         <h2 class="accordion-header" id="heading{{ forloop.counter }}">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}" aria-expanded="true" aria-controls="collapse{{ forloop.counter }}">
-                            <div class="branco">  {{ cartao.numero_conta }} - {{ cartao.cpf_motorista.nome }} </div>
+                            <div class="branco">  {{ usuario.nome_usuario }} </div>
                             </button>
                         </h2>
                         <div id="collapse{{ forloop.counter }}" class="accordion-collapse collapse" aria-labelledby="heading{{ forloop.counter }}" data-bs-parent="#employeeAccordion">
                             <div class="accordion-body">
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <p><span class="atributos">Agência</span><br>{{ cartao.agencia }}</p>
-                                        <p><span class="atributos">Numero da Conta</span><br>{{ cartao.numero_conta }}</p>
+                                        <p><span class="atributos">Nome do Usuario</span><br>{{ usuario.nome_usuario }}</p>
+                                        <p> <span class="atributos">Cadastro de Pessoa Física (CPF) </span><br>{{ usuario.cpf_fiscal }}</p>  
                                     </div>
                                     <div class="col-md-6">
-                                        <p> <span class="atributos">Cadastro de Pessoa Física (CPF) </span><br>{{ cartao.cpf_motorista }}</p>
-                                        <p><span class="atributos">Validade</span><br>{{ cartao.validade }}</p>
+                                        <p><span class="atributos">Email</span><br>{{ usuario.email }}</p>
+                                        <p><span class="atributos">Admin</span><br>{{ usuario.is_admin }}</p>
                                     </div>
                                 </div>
                             </div>

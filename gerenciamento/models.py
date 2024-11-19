@@ -146,7 +146,7 @@ class Frete(models.Model):
         return self.id_frete
     
 class Pagamento(models.Model):
-    cpf_fiscal = models.ForeignKey(Fiscal,max_length=11,on_delete=models.SET_DEFAULT,default="000", null=False,blank=False)
+    cpf_fiscal = models.ForeignKey(Fiscal,db_column='cpf_fiscal', max_length=11,on_delete=models.SET_DEFAULT,default="000", null=False,blank=False)
     id_frete = models.ForeignKey(Frete,on_delete=models.SET_DEFAULT,default="000",null=False,blank=False)
     taxa_desconto = models.DecimalField(max_digits=8,decimal_places=2)
     taxa_acrescimo = models.DecimalField(max_digits=8,decimal_places=2)
@@ -172,7 +172,7 @@ class Pagamento(models.Model):
         return self.id_frete, self.cpf_fiscal
     
 class Acessa(models.Model):
-    cpf_fiscal = models.ForeignKey(Fiscal,max_length=11,on_delete=models.SET_DEFAULT,default="000", null=False,blank=False)
+    cpf_fiscal = models.ForeignKey(Fiscal,db_column='cpf_fiscal',max_length=11,on_delete=models.SET_DEFAULT,default="000", null=False,blank=False)
     id_tipo = models.ForeignKey(Tipo,on_delete=models.SET_DEFAULT,default="000",null=False,blank=False)
     data_alteracao = models.DateTimeField(primary_key=True)
     valor_km = models.DecimalField(max_digits=9,decimal_places=2)

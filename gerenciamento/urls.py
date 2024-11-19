@@ -51,4 +51,14 @@ urlpatterns = [
     path('excluirc/', views.excluirc, name='excluirc'),
     # Pagina de exclusão dos cartões
     path('excluirc/<str:numero_conta>/', views.formexcluirc, name='formexcluirc'),
+    # Pagina de pesquisa dos usuarios
+    path('pesquisaru/', views.pesquisaru, name='pesquisaru'),
+    # Pagina de edição dos usuarios
+    path('editaru/', views.editaru, name='editaru'),
+    # Pagina inserção dos dados da edição dos usuarios
+    path('formeditaru/<str:cpf_fiscal>/', views.formeditaru, name='formeditaru'),
+    # Pagina de exclusão dos usuarios
+    path('excluiru/', views.excluiru, name='excluiru'),
+    # Pagina de exclusão dos cartões
+    path('excluiru/<str:cpf_fiscal>/', views.formexcluiru, name='formexcluiru'),
 ]

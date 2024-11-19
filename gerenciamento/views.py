@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from .forms import MotoristaForm, CartaoForm, RegistroFiscalForm
-from .models import Motorista, Cartao, Frete, Fiscal
+from .models import Acessa, Motorista, Cartao, Frete, Fiscal, Pagamento
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
@@ -106,7 +106,7 @@ def cadastraru(request):
             user.is_admin = False
             
             user.save()
-            return redirect('gerenciamento:indexadmin')
+            return redirect('gerenciamento:sucesso')
 
     return render(request, 'gerenciamento/usuario/cadastraru.html', {'form': form})
 
@@ -147,7 +147,7 @@ class ResetPasswordView(SuccessMessageMixin, PasswordResetView):
     success_url = reverse_lazy('gerenciamento:login')
     
 def custom_password_reset_confirm(request, email):
-    # Decode the base64 encoded user ID
+
     user = Fiscal.objects.get(email=email)
     
     form = RegistroFiscalForm(request.POST or None,instance=user)
@@ -230,5 +230,65 @@ def formexcluirc(request,numero_conta):
     cartao = Cartao.objects.get(numero_conta=numero_conta)
     
     cartao.delete()
+    
+    return render(request,'gerenciamento/base/sucesso.html')
+
+@staff_member_required
+def pesquisaru(request):
+    usuarios = Fiscal.objects.all().order_by('nome_usuario')
+    
+    context = {
+        'usuarios': usuarios
+    }
+    return render(request, 'gerenciamento/usuario/pesquisaru.html', context)
+
+@login_required
+def editaru(request):
+    usuarios = Fiscal.objects.all().order_by('nome_usuario')
+    
+    context = {
+        'usuarios': usuarios
+    }
+    
+    return render(request, 'gerenciamento/usuario/editaru.html', context)
+
+@login_required
+def formeditaru(request, cpf_fiscal):
+    usuario = Fiscal.objects.get(cpf_fiscal=cpf_fiscal)
+    
+    if request.method == 'POST':
+        form = RegistroFiscalForm(data=request.POST, instance=usuario)
+        form.fields.pop('password', None)
+        form.fields.pop('password_confirm', None)
+        
+        if form.is_valid():
+            form.save()
+            return redirect('gerenciamento:sucesso')
+    else:
+        form = RegistroFiscalForm(instance=usuario)
+        form.fields.pop('password', None)
+        form.fields.pop('password_confirm', None)
+
+    context = {'form': form, 'usuario': usuario}
+    return render(request, 'gerenciamento/usuario/formeditaru.html', context)
+
+@login_required
+def excluiru(request):
+    usuarios = Fiscal.objects.all().order_by('nome_usuario')
+    
+    context = {
+        'usuarios': usuarios
+    }
+    return render(request, 'gerenciamento/usuario/excluiru.html', context)
+
+@login_required
+def formexcluiru(request, cpf_fiscal):
+    usuario = Fiscal.objects.get(cpf_fiscal=cpf_fiscal)
+    
+    Pagamento.objects.filter(cpf_fiscal=cpf_fiscal).update(cpf_fiscal=None)
+    
+    Acessa.objects.filter(cpf_fiscal=cpf_fiscal).update(cpf_fiscal=None)
+    
+    usuario.delete()
     
     return render(request,'gerenciamento/base/sucesso.html')
