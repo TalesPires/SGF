@@ -59,6 +59,54 @@ urlpatterns = [
     path('formeditaru/<str:cpf_fiscal>/', views.formeditaru, name='formeditaru'),
     # Pagina de exclusão dos usuarios
     path('excluiru/', views.excluiru, name='excluiru'),
-    # Pagina de exclusão dos cartões
+    # Pagina de exclusão dos usuarios
     path('excluiru/<str:cpf_fiscal>/', views.formexcluiru, name='formexcluiru'),
+    # Pagina de cadastro dos tipos de veículos
+    path('cadastrart/', views.cadastrart, name='cadastrart'),
+    # Pagina de pesquisa dos tipos de veículos
+    path('pesquisart/', views.pesquisart, name='pesquisart'),
+    # Pagina de edição dos tipos de veículos
+    path('editart/', views.editart, name='editart'),
+    # Pagina inserção dos dados da edição dos tipos de veículos
+    path('formeditart/<str:id_tipo>/', views.formeditart, name='formeditart'),
+    # Pagina de exclusão dos tipos de veículos
+    path('excluirt/', views.excluirt, name='excluirt'),
+    # Pagina de exclusão dos motoristas
+    path('excluirt/<str:id_tipo>/', views.formexcluirt, name='formexcluirt'),
+    # Pagina de cadastro dos veículos
+    path('cadastrarv/', views.cadastrarv, name='cadastrarv'),
+    # Pagina de pesquisa dos tipos de veículos
+    path('pesquisarv/', views.pesquisarv, name='pesquisarv'),
+    # Pagina de edição dos tipos de veículos
+    path('editarv/', views.editarv, name='editarv'),
+    # Pagina inserção dos dados da edição dos tipos de veículos
+    path('formeditarv/<str:renavam>/', views.formeditarv, name='formeditarv'),
+    # Pagina de exclusão dos tipos de veículos
+    path('excluirv/', views.excluirv, name='excluirv'),
+    # Pagina de exclusão dos motoristas
+    path('excluirv/<str:renavam>/', views.formexcluirv, name='formexcluirv'),
+    # Pagina de cadastro dos veículos
+    path('cadastrarf/', views.cadastrarf, name='cadastrarf'),
+    # Pagina de pesquisa dos tipos de veículos
+    path('pesquisarf/', views.pesquisarf, name='pesquisarf'),
+    # Pagina de edição dos tipos de veículos
+    path('editarf/', views.editarf, name='editarf'),
+    # Pagina inserção dos dados da edição dos tipos de veículos
+    path('formeditarf/<str:id_frete>/', views.formeditarf, name='formeditarf'),
+    # Pagina de exclusão dos tipos de veículos
+    path('excluirf/', views.excluirf, name='excluirf'),
+    # Pagina de exclusão dos motoristas
+    path('excluirf/<str:id_frete>/', views.formexcluirf, name='formexcluirf'),
+    # Pagina de cadastro dos veículos
+    path('cadastrarp/', views.cadastrarp, name='cadastrarp'),
+    # Pagina de pesquisa dos tipos de veículos
+    path('pesquisarp/', views.pesquisarp, name='pesquisarp'),
+    # Pagina de edição dos tipos de veículos
+    path('editarp/', views.editarp, name='editarp'),
+    # Pagina inserção dos dados da edição dos tipos de veículos
+    path('formeditarp/<str:id_pagamento>/', views.formeditarp, name='formeditarp'),
+    # Pagina de exclusão dos tipos de veículos
+    path('excluirp/', views.excluirp, name='excluirp'),
+    # Pagina de exclusão dos motoristas
+    path('excluirp/<str:id_pagamento>/', views.formexcluirp, name='formexcluirp'),
 ]

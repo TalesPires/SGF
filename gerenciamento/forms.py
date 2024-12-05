@@ -1,7 +1,10 @@
 from django import forms
-from .models import Motorista, Cartao, Fiscal, Tipo, Veiculo
+from .models import Frete, Motorista, Cartao, Fiscal, Pagamento, Tipo, Veiculo
 from django.core.exceptions import ValidationError
 from validate_docbr import CPF, CNH, RENAVAM
+import datetime
+from django.utils.timezone import localtime
+
 
 class MotoristaForm(forms.ModelForm):
     class Meta:
@@ -77,20 +80,41 @@ class TipoForm(forms.ModelForm):
         fields = ['id_tipo','nome_tipo', 'capacidade_peso', 'quantidade_eixos']
     
     def clean_capacidade_peso(self):
-        capacidade_peso = self.cleaned_data.get(capacidade_peso)
-        quantidade_eixos = self.cleaned_data.get(quantidade_eixos)
+        capacidade_peso = self.cleaned_data.get('capacidade_peso')  # Use string key
+        quantidade_eixos = self.cleaned_data.get('quantidade_eixos')  # Use string key
         
-        if capacidade_peso < 0:
+        if capacidade_peso is not None and capacidade_peso < 0:
             raise ValidationError('Capacidade de peso deve ser maior que zero')
         
-        if quantidade_eixos < 0:
+        if quantidade_eixos is not None and quantidade_eixos < 0:
             raise ValidationError('Quantidade de eixos deve ser maior que zero')
+
+        return capacidade_peso  # Ensure to return the cleaned value if valid
 
 class VeiculoForm(forms.ModelForm):
     class Meta:
         model = Veiculo
-        fields = ['renavam','id_tipo', 'placa', 'marca','modelo', 'cor', 'ano']
-        
+        fields = ['renavam','id_tipo', 'placa', 'marca','modelo', 'cor', 'rntrc', 'ano']
+    
+    ano = forms.CharField(
+        max_length=4,
+        widget=forms.TextInput(),
+        label="Ano"
+    )
+
+    def clean_ano(self):
+        ano = self.cleaned_data.get('ano')
+        if not ano.isdigit():
+            raise forms.ValidationError("O ano deve ser um número.")
+        if len(ano) != 4:
+            raise forms.ValidationError("O ano deve ter 4 dígitos.")
+        current_year = datetime.datetime.now().year
+        if int(ano) > current_year + 1:
+            raise forms.ValidationError(f"O ano não pode ser maior que o proximo ano ({current_year + 1 })")
+        elif int(ano) < 1970:
+            raise forms.ValidationError(f"O ano não pode ser meno que 1970")
+        return ano
+
     def clean_renavam(self):
         renavam = self.cleaned_data.get('renavam')
         validator = RENAVAM()
@@ -99,3 +123,53 @@ class VeiculoForm(forms.ModelForm):
             raise ValidationError("Renavam inválido.")
         
         return renavam
+    
+class FreteForm(forms.ModelForm):
+    class Meta:
+        model = Frete
+        fields = ['id_frete','cpf_motorista','renavam','data_chegada','data_saida','distancia_rodagem','valor_frete']
+        
+        widgets = {
+            'data_chegada': forms.DateTimeInput(
+                attrs={
+                    'type': 'datetime-local',  # HTML5 input type for DateTime
+                    'class': 'form-control',  # Bootstrap class for styling
+                }
+            ),
+            'data_saida': forms.DateTimeInput(
+                attrs={
+                    'type': 'datetime-local',  # HTML5 input type for DateTime
+                    'class': 'form-control',  # Bootstrap class for styling
+                }
+            )
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Format datetime fields for 'datetime-local' input
+        if self.instance and self.instance.pk:  # Ensure it's an existing instance
+            if self.instance.data_chegada:
+                self.initial['data_chegada'] = localtime(self.instance.data_chegada).strftime('%Y-%m-%dT%H:%M')
+            if self.instance.data_saida:
+                self.initial['data_saida'] = localtime(self.instance.data_saida).strftime('%Y-%m-%dT%H:%M')
+                
+class PagamentoForm(forms.ModelForm):
+    class Meta:
+        model = Pagamento
+        fields = ['cpf_fiscal', 'id_frete', 'taxa_desconto', 'taxa_acrescimo', 'valor_calculado','data_pagamento', 'status_pagamento']
+        widgets = {
+            'status_pagamento': forms.Select(attrs={'class': 'form-control'}),
+            'data_pagamento': forms.DateTimeInput(
+                attrs={
+                    'type': 'datetime-local',
+                    'class': 'form-control',  
+                }
+            )
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Format datetime fields for 'datetime-local' input
+        if self.instance and self.instance.pk:  # Ensure it's an existing instance
+            if self.instance.data_pagamento:
+                self.initial['data_pagamento'] = localtime(self.instance.data_pagamento).strftime('%Y-%m-%dT%H:%M')

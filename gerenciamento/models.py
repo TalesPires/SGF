@@ -106,57 +106,56 @@ class Tipo(models.Model):
         db_table = 'tipo'
 
     def __str__(self):
-        return self.id_tipo
+        return str(self.id_tipo)
     
 class Veiculo(models.Model):
     renavam = models.CharField(max_length=11,primary_key=True)
-    id_tipo = models.ForeignKey(Tipo,on_delete=models.SET_DEFAULT,default="000",null=False,blank=False)
+    id_tipo = models.ForeignKey(Tipo,db_column='id_tipo',null=True,on_delete=models.SET_NULL)
     placa = models.CharField(max_length=20)
     marca = models.CharField(max_length=20)
     modelo = models.CharField(max_length=20)
     cor = models.CharField(max_length=20)
-    ano = models.DateField()
+    ano = models.CharField(max_length=4)
+    rntrc = models.CharField(max_length=8)
     
-
     class Meta:
         managed = False
         db_table = 'veiculo'
 
     def __str__(self):
-        return self.renavam
+        return str(self.renavam)
     
 class Frete(models.Model):
     id_frete = models.AutoField(primary_key=True)
-    cpf_motorista = models.ForeignKey(Motorista,max_length=11, null=False,
+    cpf_motorista = models.ForeignKey(Motorista,db_column='cpf_motorista',max_length=11, null=False,
     on_delete=models.SET_DEFAULT,blank=False,default="00000000000")  
-    renavam = models.ForeignKey(Veiculo,max_length=11, null=False,
+    renavam = models.ForeignKey(Veiculo,db_column='renavam',max_length=11, null=False,
     on_delete=models.SET_DEFAULT,blank=False,default="00000000000")
     data_chegada = models.DateTimeField()
     data_saida = models.DateTimeField()
-    distancia_rodagem = models.SmallIntegerField()
+    distancia_rodagem = models.PositiveSmallIntegerField()
     valor_frete = models.DecimalField(max_digits=10, decimal_places=2)
-    
-
 
     class Meta:
         managed = False
         db_table = 'frete'
 
     def __str__(self):
-        return self.id_frete
+        return str(self.id_frete)
     
 class Pagamento(models.Model):
+    id_pagamento = models.AutoField(primary_key=True)
     cpf_fiscal = models.ForeignKey(Fiscal,db_column='cpf_fiscal', max_length=11,on_delete=models.SET_DEFAULT,default="000", null=False,blank=False)
-    id_frete = models.ForeignKey(Frete,on_delete=models.SET_DEFAULT,default="000",null=False,blank=False)
+    id_frete = models.ForeignKey(Frete,db_column='id_frete',on_delete=models.SET_NULL,null=True)
     taxa_desconto = models.DecimalField(max_digits=8,decimal_places=2)
     taxa_acrescimo = models.DecimalField(max_digits=8,decimal_places=2)
     valor_calculado = models.DecimalField(max_digits=12,decimal_places=2)
     data_pagamento = models.DateTimeField()
     
     class escolhas_status_pagamento(models.TextChoices):
-        PENDENTE = "PE",_("PENDENTE")
-        EM_TRANSFERENCIA = "TR",_("EM_TRANSFERENCIA")
-        PAGO = "PA",_("PAGO")
+        PENDENTE = "PE",_("Pendente")
+        EM_TRANSFERENCIA = "TR",_("Em Transferência")
+        PAGO = "PA",_("Pago")
 
     status_pagamento = models.CharField(
         max_length=2,
@@ -169,11 +168,11 @@ class Pagamento(models.Model):
         db_table = 'pagamento'
 
     def __str__(self):
-        return self.id_frete, self.cpf_fiscal
+        return str(self.id_pagamento)
     
 class Acessa(models.Model):
     cpf_fiscal = models.ForeignKey(Fiscal,db_column='cpf_fiscal',max_length=11,on_delete=models.SET_DEFAULT,default="000", null=False,blank=False)
-    id_tipo = models.ForeignKey(Tipo,on_delete=models.SET_DEFAULT,default="000",null=False,blank=False)
+    id_tipo = models.ForeignKey(Tipo,db_column='id_tipo'    ,null=True,on_delete=models.SET_NULL) 
     data_alteracao = models.DateTimeField(primary_key=True)
     valor_km = models.DecimalField(max_digits=9,decimal_places=2)
     valor_tonelada = models.DecimalField(max_digits=9,decimal_places=2)
@@ -188,7 +187,7 @@ class Acessa(models.Model):
     
 class Carga(models.Model):
     codigo_carga = models.AutoField(primary_key=True)
-    id_frete = models.ForeignKey(Frete, null=True,on_delete=models.SET_NULL,blank=True)
+    id_frete = models.ForeignKey(Frete,db_column='id_frete',null=True,on_delete=models.SET_NULL,blank=True)
     peso = models.DecimalField(max_digits=9, decimal_places=2)
     valor_carga = models.DecimalField(max_digits=12, decimal_places=2)
     
